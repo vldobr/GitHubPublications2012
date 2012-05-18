@@ -76,12 +76,20 @@
 \maketitle
 
 \begin{abstract}
-This is a bare-bones \LaTeX\ template of an AIAA technical conference
-paper. It is intended to demonstrate the bare minimum set of \LaTeX\
-commands to produce an AIAA technical conference paper. To explore more
-\LaTeX\ capabilities, see the advanced template. For detailed AIAA layout
-and style guidelines, please refer to the AIAA author guide for paper
-submission, format, and other procedures.
+This section introduces an approach that facilitates onboard mission planning and
+task execution by an autonomous UAV. The ultimate goal of this design is to enable
+near real-time mission planning or its rapid modification should the operational
+conditions change and need arise. As soon as the mission objectives are defined by
+the high level cognitive components, then the set of specific tasks targeting an
+application of the UAV in a priory given operational environment, needs to be
+designed. The task should specify the trajectory (both the path and the velocity
+profile) such that the mission objectives are achieved, the UAV and its payload do
+not exceed the flight dynamics constraints, and that the operational constraints such
+as radar detection, airspace deconfliction and collision avoidance conditions are
+met. Thus, this section outlines a path generation approach that is suitable for near
+real-time computation of feasible trajectories for a single UAV that accounts for the
+flight dynamics and operational constraints and can be followed by resorting to the
+path following algorithm\cite{JGCD10_PFL1aug} briefly described later in the paper.
 \end{abstract}
 
 \section*{Nomenclature}
@@ -101,162 +109,111 @@ submission, format, and other procedures.
 
 
 \section{Feasible Path Generation}
-This section introduces an approach that supports mission planning and task
-execution steps by a fleet of multiple cooperative UAVs. As soon as the
-mission objectives are defined by the high level cognitive components, the
-set of specific tasks targeting an application of each of the UAVs in the
-fleet, needs to be designed. The task of each UAV in a cooperative mission
-should specify the trajectory (both the path and the velocity profile) such
-that the mission objectives are achieved, each of the UAVs and their
-payloads do not exceed the flight dynamics or operational constraints, and
-that the deconfliction and collision avoidance conditions are met.
-% In case
-%when the mission objectives are modified during the task execution, the
-%method developed also allows for near real-time trajectories regeneration to
-%account for changes in operational environment.
-Thus, this section outlines a path generation approach that is suitable for
-near real-time computation of feasible trajectories for multiple UAVs that
-are de-conflicted in space and that can be followed by resorting to the
-cooperative path following algorithm briefly described later in the paper.
+This section introduces an approach that facilitates onboard mission planning and task
+execution by an autonomous UAV. The ultimate goal of this design is to enable near
+real-time mission planning or its rapid modification should the operational conditions
+change and need arise. As soon as the mission objectives are defined by the high level
+cognitive components, then the set of specific tasks targeting an application of the
+UAV in a priory given operational environment, needs to be designed. The task should
+specify the trajectory (both the path and the velocity profile) such that the mission
+objectives are achieved, the UAV and its payload do not exceed the flight dynamics
+constraints, and that the operational constraints such as radar detection, airspace
+deconfliction and collision avoidance conditions are met. Thus, this section outlines a
+path generation approach that is suitable for near real-time computation of feasible
+trajectories for a single UAV that accounts for the flight dynamics and operational
+constraints and can be followed by resorting to the path following
+algorithm\cite{JGCD10_PFL1aug} briefly described later in the paper.
 
-Consider a fleet of $n$ UAVs that are tasked to start from different
-locations (initial conditions) and arrive at the mission required final
-conditions. The exact time of arrival is not specified, but it may be
-restricted to lie within certain bounds.Suppose the objective of the task
-for each UAV is to execute this multi-vehicle mission while avoiding
-inter-vehicle collisions, meeting dynamical constraints (e.g. bounds on
-maximum accelerations), and minimizing a weighted combination of vehicle
-energy expenditures.
+Consider a single UAV that is tasked to fly a typical mission while avoiding detection
+by an a priory known set of radars; the UAV performs its mission starting from its
+current state (initial conditions) and arriving to the final conditions specified by
+the mission planner. While the exact duration of the mission is not know a priory, it
+is quite typical that the duration needs to be minimized; this can be justified by the
+nature of the mission itself and/or the restrictions on energy expenditures imposed by
+the UAV platform. Furthermore, suppose the objective of the UAV task is not only to
+minimize the mission duration or the vehicle energy expenditures while meeting
+dynamical constraints (e.g. bounds on maximum accelerations), but also to minimize the
+probability of being detected by a number of radars.
 
-At first inspection, a possible solution to this problem would be to solve a
-constrained optimization problem that would yield (if at all possible)
-feasible trajectories $p_{c_i}(t), t \in [0, t_f]; i=1,2,...,n$ for the
-vehicles, where $t_f$ denotes the final time. Trajectory tracking systems
-on-board the UAVs would then ensure precise tracking of the trajectories
-generated, thus meeting the mission objectives.
+The described problem belongs to the class of optimal control problems and it would be
+desirable to have an algorithm capable of solving it in near real time. Unfortunately,
+classical indirect approaches of calculus of variations (Bellman’s dynamic programming,
+Pontrjagin’s maximum principle) can handle only very simple problems like a double
+integrator where even an analytical solution is possible. However, obtaining an optimal
+solution off-line for more realistic system is still quite difficult. That is why
+various simplifying approaches have been developed to provide a near-optimal solution
+in close to real-time rather than optimal solution (collocation method, method of
+differential inclusions, etc.) off-line.
 
-This seemingly straightforward solution suffers from a major drawback: it
-does not allow for any ``deviations from the plan''. Absolute timing becomes
-crucial because the strategy described does not lend itself to on-line
-modification in the event that one or more of the vehicles cannot execute
-trajectory tracking accurately (e.g. due to adverse winds or lack of
-sufficient propulsion power). For this reason, it is far more practical to
-adopt a different solution where absolute time is not crucial and enough
-room is given to each vehicle to adjust its motion along the path in
-response to the motions of the other vehicles.
-%The goal is that of reaching
-%a terminal formation pattern that will ensure simultaneous arrival times.
+This work adopts the key idea of the approach proposed in Ref.\cite{JGCD00_Yakimenko}.
+The method is based on explicit separation of the path and the velocity associated with
+it. Both, the path and the velocity profile are represented by using some reference
+functions expressed via a limited number of variable parameters such as, for example,
+length of the path. The remaining states and controls can be determined using inverse
+dynamics of original non-linear equations driving the system. As soon as the values of
+variable parameters are fixed, then the path and the associated velocity profile are
+given, and the required controls can be quickly evaluated using the inverse dynamics.
+When done, a cost function representing the objective of the optimization task can be
+calculated. Implementing this procedure iteratively enables calculating the best
+solution (path and velocity profile) by varying a limited number of variable
+parameters. The following brief explanation outlines the key elements of this approach
+related to the tactical components of the cognitive mission planner. For detailed
+presentation of the approach and its historical evolution an interested reader is
+referred to the publication\cite{JGCD00_Yakimenko}and the references herein.
 
-Dispensing with absolute time is key to the solution proposed. In this
-set-up, the optimization process should be viewed as a method to produce
-paths $p_{c_i}(\tau_i)$ without explicit time constraints, but with timing
-laws for $\tau_i(t)$ that effectively dictate how the nominal speed of each
-vehicle should evolve along the path. Using this set-up, spatial and
-temporal constraints are decoupled and captured in the descriptions of
-$p_{c_i}(\tau_i)$ and $\eta_i(\tau_i)=d\tau_i/dt$, respectively, as will be
-seen later. Furthermore, adopting polynomial approximations for
-$p_{c_i}(\tau_i)$ and $\eta_i(\tau_i)=d\tau_i/dt$ keeps the number of
-optimization parameters reduced and makes near real-time computational
-requirements easy to achieve. Intuitively, by making the path of a generic
-vehicle a polynomial function of  $\tau \in \ [0, \tau_f ]$, the shape of
-the path in space can be changed by increasing or decreasing $\tau$ - a
-single optimization parameter. This, coupled with a polynomial approximation
-for $\eta(\tau)=d\tau/dt$, makes it easy to shape the speed and acceleration
-profile of the vehicle along the path so as to meet desired dynamical
-constraints. The paths thus generated are the ``templates'' used for path
-following, as explained later in the paper.
+Thus, the approach to path generation exploits decoupling of spatial and temporal
+specifications. Let $p_c(\tau) = [x(\tau), y(\tau), z(\tau)]^{\top}$ denote a desired
+path to be followed by a single UAV in 3D space, parameterized by $\tau \in [0,
+\tau_f]$. For computational efficiency, assume each coordinate $x (\tau), y(\tau),
+z(\tau)$ is represented by an algebraic polynomial of degree $N$ of the form
+\begin{eqnarray} \label{algpolynomials}
+x_{i}(\tau) &=& \sum_{k = 0}^{N} a_{ik} \tau^k, \qquad i = 1,2,3,
+\end{eqnarray}
+where we set $x_{1} = x, x_{2} = y, x_{3} = z$ for notational convenience. The degree
+$N$ of polynomials $x_{i}(\tau)$ is determined by the number of boundary conditions
+that must be satisfied. Notice that these conditions (that involve spatial derivatives)
+are computed with respect to the parameter $\tau$; this parameter will be later related
+to actual temporal derivatives. Let $d_0$ and $d_f$ be the highest-order of the spatial
+derivatives of $x_{i}(\tau)$ that must meet specified boundary constraints at the
+initial and final points of the path, respectively. Then, the minimum degree $N^*$ of
+each polynomial in (\ref{algpolynomials}) is $N^{*} = d_0 + d_f + 1$. For example, if
+the desired path includes constraints on initial and final positions, velocities, and
+accelerations (second-order derivatives), then the degree of each polynomial is $N^{*}
+= 2 + 2 + 1 = 5$. Explicit formulae for computing boundary conditions $p'_c(0),
+p''_c(0)$ and $p'_c(\tau_f), p''_c(\tau_f)$ are given later in this section. Additional
+degrees of freedom may be included by making $N > N^*$. As an illustrative example,
+Table 1 shows how to compute the polynomial coefficients in (\ref{algpolynomials}) for
+polynomial trajectories of $5^{{\rm th}}$ and $6^{{\rm th}}$ degree. For $6^{{\rm th}}$
+degree polynomial trajectories,  an additional constraint on the fictitious initial
+jerk (third-order derivatives) is included, which increases the order of the resulting
+polynomial and affords extra (design) parameters $ x'''_{i}(0); i = 1,2,3$.
 
-%In particular, In addition, the vehicle's velocity and acceleration
-%can be easily computed along this path. If the path length is too
-%short, vehicle's velocity and acceleration will exceed the
-%pre-specified bounds thus making the trajectories infeasible -
-%impossible for vehicle to track given its dynamic constraints. This
-%simple idea allows for computing feasible trajectories in real-time
-%using a small number of optimization parameters.
+%Fig. \ref{trajsim1} shows examples of admissible $5^{{\rm th}}$ and $6^{{\rm th}}$
+%order polynomial paths when only $\tau_f$ or $\tau_f$ and $x'''_{i}(0); i = 1,2,3$,
+%viewed as optimization parameters, vary. Fig. \ref{trajsim1} (right) shows how an
+%increase in the number of optimization parameters leads to a larger class of admissible
+%paths (in this particular case, parameters corresponding to initial jerk are added as
+%free variables).
 
-
-The above circle of ideas was first explored in Refs. \cite{Neljubov,
-Taranenko, Taranenko-Momdgi, Yakimenko} for a single aircraft. This paper
-extends these results to the case of multiple UAVs following earlier work by
-the authors reported in Ref. \cite{isaac_acc_06}. As will be seen, the
-approach to path generation exploits decoupling of spatial and temporal
-specifications. Let $p_c(\tau) = [x(\tau), y(\tau), z(\tau)]^{\top}$ denote
-a desired path to be followed by a single UAV, parameterized by $\tau \in
-[0, \tau_f]$. For computational efficiency, assume each coordinate $x
-(\tau), y(\tau), z(\tau)$ is represented by an algebraic polynomial of
-degree $N$ of the form
-\begin{eqnarray} \label{algpolynomials} x_{i}(\tau) &=& \sum_{k =
-0}^{N} a_{ik} \tau^k, \qquad i = 1,2,3, \end{eqnarray} where we set $x_{1} =
-x, x_{2} = y, x_{3} = z$ for notational convenience. The degree $N$ of
-polynomials $x_{i}(\tau)$ is determined by the number of boundary conditions
-that must be satisfied. Notice that these conditions (that involve spatial
-derivatives) are computed with respect to the parameter $\tau$. There is an
-obvious need to relate them to actual temporal derivatives, but this issue
-will only be addressed later. Let $d_0$ and $d_f$ be the highest-order of
-the spatial derivatives of $x_{i}(\tau)$ that must meet specified boundary
-constraints at the initial and final points of the path, respectively. Then,
-the minimum degree $N^*$ of each polynomial in (\ref{algpolynomials}) is
-$N^{*} = d_0 + d_f + 1$. For example, if the desired path includes
-constraints on initial and final positions, velocities, and accelerations
-(second-order derivatives), then the degree of each polynomial is $N^{*} = 2
-+ 2 + 1 = 5$. Explicit formulae for computing boundary conditions $p'_c(0),
-p''_c(0)$ and $p'_c(\tau_f), p''_c(\tau_f)$ are given later in this section.
-Additional degrees of freedom may be included by making $N > N^*$. As an
-illustrative example, Table 1 shows how to compute the polynomial
-coefficients in (\ref{algpolynomials}) for polynomial trajectories of
-$5^{{\rm th}}$ and $6^{{\rm th}}$ degree. For $6^{{\rm th}}$ degree
-polynomial trajectories,  an additional constraint on the fictitious initial
-jerk (third-order derivatives) is included, which increases the order of the
-resulting polynomial and affords extra (design) parameters $ x'''_{i}(0); i
-= 1,2,3$.  Fig. \ref{trajsim1} shows examples of admissible $5^{{\rm th}}$
-and $6^{{\rm th}}$ order polynomial paths when only $\tau_f$ or $\tau_f$ and
-$x'''_{i}(0); i = 1,2,3$, viewed as optimization parameters, vary. Fig.
-\ref{trajsim1} (right) shows how an increase in the number of optimization
-parameters leads to a larger class of admissible paths (in this particular
-case, parameters corresponding to initial jerk are added as free variables).
-
-
-
-%The fact that the virtual arc $\tau$ was selected as a parameter in
-%(\ref{algpolynomials}) allows for additional flexibility. If one
-%chooses $\tau = t$, then defining spatial profiles implies defining
-%speed profiles along a given path as well. This is due to the fact
-%that vehicle speed along the path is related to the time derivatives
-%of the trajectory coordinates as
-%\begin{eqnarray} \label{velocity} v(t) &=& \sqrt{ \dot{x}_{1}^2(t)
-%+ \dot{x}^2_{2}(t) + \dot{x}^2_{3}(t)}. \end{eqnarray} Figure
-%\ref{speedsims1} shows the speed profiles corresponding to the
-%trajectories in Figure \ref{trajsim1} for the case of $\tau = t$.
-%This figure also demonstrates that increasing the number of
-%optimization parameters allows one to obtain speed profiles that do
-%not exceed predefined constraints.
-
-
-It is important to clarify how temporal constraints may be included in the
-feasible path computation process. A trivial solution would be to make
-$\tau=t$. In this case, solving the polynomial fitting problem that is at
-the root of Fig. \ref{trajsim1} yields the speed profiles of Fig.
-\ref{speedsims1}. Little control exists over the resulting speeds even with
-fifth and sixth order polynomials, because once $x_1(t), x_2(t), x_3(t)$
-have been computed to satisfy the boundary constraints imposed, speed $v$ is
-inevitably given by
+It is important to clarify how temporal constraints may be included in the feasible
+path computation process. A trivial solution would be to make $\tau=t$. However, very
+little control exists over the resulting speeds even with fifth and sixth order
+polynomials, because once $x_1(t), x_2(t), x_3(t)$ have been computed to satisfy the
+boundary constraints imposed, speed $v$ is inevitably given by
 \begin{eqnarray}
 \label{velocity} v(t) &=& \sqrt{ \dot{x}_{1}^2(t) +
 \dot{x}^2_{2}(t) + \dot{x}^2_{3}(t)}.
 \end{eqnarray}
-
-We therefore turn our attention to a different procedure that will afford us
-the possibility of meeting strict boundary conditions and constraints
-without increasing the complexity of the path generation process. To this
-effect, let $v_{{\rm min}}, v_{{\rm max}}$ and $a_{{\rm max}}$ denote
+We therefore consider a different procedure that will enable meeting strict boundary
+conditions and constraints without increasing the complexity of the path generation
+process. To this effect, let $v_{{\rm min}}, v_{{\rm max}}$ and $a_{{\rm max}}$ denote
 predefined bounds on the vehicle's speed and acceleration, respectively. Let
-$\eta(\tau) = d\tau/dt$, yet to be determined, dictate how parameter $\tau$
-evolves in time. A path $p_c(\tau)$ (with an underlying assignment
-$\eta(\tau)$) is said to constitute a \textit{feasible} path if the
-resulting trajectory can be tracked by an UAV without exceeding
-pre-specified bounds on its velocity and total acceleration along that
-trajectory. With an obvious use of notation, we will later refer to a
-spatial path only, without the associated $\eta(\tau)$, as a feasible path.
+$\eta(\tau) = d\tau/dt$, yet to be determined, dictate how parameter $\tau$ evolves in
+time. A path $p_c(\tau)$ (with an underlying assignment $\eta(\tau)$) is said to
+constitute a \textit{feasible} path if the resulting trajectory can be tracked by an
+UAV without exceeding pre-specified bounds on its velocity and total acceleration along
+that trajectory. With an obvious use of notation, we will later refer to a spatial path
+only, without the associated $\eta(\tau)$, as a feasible path.
 
 From (\ref{velocity}), and for a given choice of $\eta(\tau)$, the temporal
 speed $v_p(\tau(t))$ and acceleration $a_p(\tau(t))$ of the vehicle along
@@ -341,28 +298,22 @@ coefficients $a_{ik}$ \end{tabular}
 %  \caption{Examples of computation of the coefficients of polynomial trajectories.}\label{polynomialtable}
 %  \centering
  \end{tabular} \\ \\
-
-
-
-
-
-
-
-\begin{figure}\begin{center}
-  % Requires \usepackage{graphicx}
-  \includegraphics[width=2.5 in]{figures/poly1.eps}   \includegraphics[width=2.5 in]{figures/poly2.eps}\\
-  \caption{Admissible trajectories for $5^{{\rm th}}$ and $6^{{\rm th}}$ order
-  polynomials.}\label{trajsim1}\end{center}
-\end{figure}
-
-\begin{figure}\begin{center}
-  % Requires \usepackage{graphicx}
-  \includegraphics[width=2.6 in]{figures/traj1.eps}   \includegraphics[width=2.6 in]{figures/traj2.eps}\\
-  \caption{Speed profile corresponding to the paths shown in Figure \ref{trajsim1} when $\tau =
-  t$. Left: varying $\tau_f$. Right: varying $\tau_f$ and the initial
-jerk.}\label{speedsims1}.
-  \end{center}
-\end{figure}
+%
+%\begin{figure}\begin{center}
+%  % Requires \usepackage{graphicx}
+%  \includegraphics[width=2.5 in]{figures/poly1.eps}   \includegraphics[width=2.5 in]{figures/poly2.eps}\\
+%  \caption{Admissible trajectories for $5^{{\rm th}}$ and $6^{{\rm th}}$ order
+%  polynomials.}\label{trajsim1}\end{center}
+%\end{figure}
+%
+%\begin{figure}\begin{center}
+%  % Requires \usepackage{graphicx}
+%  \includegraphics[width=2.6 in]{figures/traj1.eps}   \includegraphics[width=2.6 in]{figures/traj2.eps}\\
+%  \caption{Speed profile corresponding to the paths shown in Figure \ref{trajsim1} when $\tau =
+%  t$. Left: varying $\tau_f$. Right: varying $\tau_f$ and the initial
+%jerk.}\label{speedsims1}.
+%  \end{center}
+%\end{figure}
 
 % IK changes
 
@@ -421,81 +372,94 @@ v_{\rm min} \le v_p ~ \le v_{\rm max}, ~~~~ a_p(\tau) \le a_{\rm max},
 
 \noindent for a pre-specified acceleration bound $a_{\rm max}$.
 
-In this paper, we use the freedom afforded by a simple definition of a feasible path above to address the
-problem of
-time-coordinated control of multiple UAVs whereby all UAV's must arrive at their
-respective final destinations at the same time.  The approach proposed here seeks to find a set of feasible
-paths that makes the coordinated arrival time problem easily solvable by a team of UAVs flying at constant
-speeds along these paths while coordinating their motion using the underlying communication network. In
-particular, these paths should be designed in such a way as to guarantee the simultaneous arrival by all UAVs
-at their respective destinations. Next, we make these ideas more precise.
+In this paper, we use this simple definition of a feasible path to address the problem
+of a mission planning of a tactical UAV whereby the UAV must avoid detection by a radar
+and accomplish the mission in a minimum time.  The approach proposed here finds a
+feasible path that makes the minimum time mission planning problem easily solvable by a
+single UAV flying at constant speeds along the path. Next, we make these ideas more
+precise.
 
-Let $l_{fi}$ denote the total path length of the $ith$ path and
-$v_{p_i}$ denote its velocity along this path. Then
+Let $l_{f}$ denote the total path length and $v_{p}$ denote its velocity along this
+path. Then
 $$
-l_{fi}=\int^{\tau_{fi}}_0 ||p'_{c_i}(\tau_i)|| ~ d \tau_i.
+l_{f}=\int^{\tau_{f}}_0 ||p'_{c}(\tau)|| ~ d \tau.
 $$
-It follows immediately that the time of flight $t_{fi}$ of UAV $i$ is given by
-\begin{eqnarray} \nonumber t_{fi_{{\rm min}}} &=&
-\int^{\tau_{fi}}_0 \frac{||p'_{c_1}(\tau_i)||} {v_{{\rm p}_{i}}}~ d \tau_i .
+It follows immediately that the time of flight $t_{f}$ of UAV is given by
+\begin{eqnarray} \nonumber t_{f_{{\rm min}}} &=&
+\int^{\tau_{f}}_0 \frac{||p'_{c}(\tau)||} {v_{{\rm p}}}~ d \tau.
 \end{eqnarray}
-Define a cost function $J = (\max_i t_{fi} - \min_i t_{fi})^2$. Then, making $J$ arbitrarily small over the
-set of feasible paths, feasible velocities and accelerations  will
-result in the desired solution to the simultaneous arrival problem
-discussed above. Therefore, we propose to solve the following
-path generation problem
+Define a cost function $J = t_{f}$. Then, making $J$ arbitrarily small over the set of
+feasible paths, feasible velocities and accelerations  will result in the desired
+solution to the minimal time problem discussed above. Therefore, we propose to solve
+the following path generation problem
 
 \begin{eqnarray}
-F1: \left\{
+F: \left\{
 \begin{array}{llll}
-\displaystyle{\min_{\tau_{fi},v_{p_i}, \; i =1,\ldots,n} \{ J  \} } \\ \\
-~~ ~ subject ~
-to \\ \\
-~ boundary ~ conditions ~ and ~(\ref{cond1a}) ~ for~ any ~ i
-\in [1,n] \\ \\
-\displaystyle{\min_{j,k = 1, \ldots, n, j \ne k} ||
-p_{c_j}(\tau_j) - p_{c_k}(\tau_k)||^2 \ge E^2 ~ for ~ any ~
-\tau_j, \tau_k \in [0,
-\tau_{fj}] \times [0, \tau_{fk}]},
+\displaystyle{\min_{\tau_{f},v_{p}, \;} \{ J  \} } \\
+subject~to
+~boundary~conditions~and~limitations~(\ref{cond1a})\\
+~while
+\displaystyle{\min_{j = 1, \ldots, n,} ||P_{det_i}(\tau)||^2 \le E^2},
 \end{array} \right.
 \end{eqnarray}
 
-Solution to the optimization problem $F1$ includes a set of $n$ optimal paths and constant speed profiles
-that together minimize $J$ subject to an additional constraint that these paths must be spatially separated
-by at least $E$ meters:
-$\displaystyle{\min_{j,k = 1, \ldots, n, j \ne k} || p_{c_j}(\tau_j)
-- p_{c_k}(\tau_k)||^2 \ge E^2 ~ for ~ any ~ \tau_j, \tau_k \in [0,
-\tau_{fj}] \times [0, \tau_{fk}]}$
-Clearly, this constraint guarantees collision avoidance.
+Solution to the optimization problem $F$ includes an optimal paths and constant speed
+profile that together minimize $J$ subject to boundary conditions and control
+limitations~(\ref{cond1a}) and an additional penalty function $\Delta$ that besides
+penalizing the UAV states~$\eta(\tau)$, controls~$\xi(\tau)$ and their
+derivatives~$\pi(\tau)$ defines the UAV's detection probability $P_{det_i}$ by a set of
+${i = 1, \ldots, n}$ radars. The choice of penalty function is what makes the
+optimization task relevant to the tactical sense of the UAV mission. In application to
+the task at hand it can be represented as follows:
+\begin{eqnarray}\label{penalty}
+\begin{array}{cr}
+\Delta=\sum_{j = 1}^{k} w_j\cdot max(0;\eta-\eta_{bound})^2
+         +\sum_{j = 1}^{l} w_{j+k}\cdot  max(0;\xi-\xi_{bound})^2\\\\
+          +\sum_{j = 1}^{m}  w_{j+k+l}\cdot  max(0;\pi-\pi_{bound})^2
+           +\sum_{i = 1}^{n}  w_{j+k+l+m+n}\cdot  max(0;P_{det_i}-P_{bound})^2
+\end{array}
+\end{eqnarray}
+where the values of $\eta_{bound}$,$\xi_{bound}$,$\pi_{bound}$ are the design bounds
+defined a priory, and $w_j$ are the weight coefficients $(\sum_{j = 1}^{j+k+l+m+n} w_j
+=1)$ that are chosen heuristically to ensure specified accuracy of matching the
+constraints. As a result the optimization problem is reduced to a nonlinear programming
+problem with an objective of minimizing the scalar function of a limited number of
+variables.
 
+The optimization problem $F$ can be effectively solved in near real-time by
+constructing a penalty function $G$ as discussed in works
+\cite{Dobr1999_JCSI,JGCD00_Yakimenko} and by using any zero-order optimization
+technique like the Hooke-Jeeves pattern direct-search
+algorithm\cite{HookeJeevs1961_JACM} or Nelder-Mead downhill simplex
+algorithm\cite{NelderMead1965_TCJ}. In the task at hand the Hooke-Jeeves optimization
+algorithm was implemented online at $4Hz$ thus producing a near optimal solution not
+faster than 4 times a second. Constraining the update rate of the optimization code
+allowed balancing the computational load of the onboard CPU.
 
-The optimization problem $ F1$ can be effectively solved in
-real-time by adding a penalty function $G$ as discussed in Ref.
-\cite{Yakimenko} and by using any zero-order optimization
-technique. As an example, Fig.~\ref{ex1} illustrates the
-flexibility afforded by the reference polynomials to compute a
-coordinated target reconnaissance mission by three UAVs. In this
-case, the vector of optimization parameters is $\Xi = [\tau_{f1}
-~~ \tau_{f2} ~~ \tau_{f3} ~~ v_{p_1} ~~ v_{p_2}~~ v_{p_3}]$. The
-final value of the cost function $J = 1.6968e-006$ corresponds to
-$|\max_i t_{fi} - \min_i t_{fi}| \le ~~ 0.0013 ~~ sec$. The value
-of the optimization parameter vector $\Xi_{final} = [4010.0 ~~
-4999.7 ~~ 7487.6 ~~ 15.1380 ~~ 21.2238 ~~ 29.8054]$ resulted in
-spatially deconflicted paths where the minimum distance between
-any two paths did not fall below $350 ~ m$ (the minimum required
-distance was $100 ~ m$). The optimal speed profiles $[15.1380~m/s
-~~ 21.2238~m/s ~~ 29.8054~m/s]$ are well within predefined limits
-of $v_{{\rm min}}, v_{{\rm max}}$ were $15 m/sec$ and $30 m/sec$,
-respectively.
-%The selected speed limits were
-%well inside the physical capabilities of the UAVs used in the flight
-%tests.
-%This was done to ensure that each path can be tracked in
-%the presence of winds.
-The maximum acceleration corresponding to
-each path did not exceed $0.89 m/sec^2$, well below the limit of
-$0.5 g$.  Finally, the resulting total path lengths for each path were
-$[ \l_{f1} ~~ \l_{f2} ~~ \l_{f3} ] = [4535.4 ~~ 6358.7  ~~ 8929.7]$.
+A particular example of tactical UAV mission solved by utilizing the path generation
+algorithm will be provide later in the experimental results section.
+
+%As an example, Fig.~\ref{ex1} illustrates the flexibility afforded by the reference
+%polynomials to compute a coordinated target reconnaissance mission by three UAVs. In
+%this case, the vector of optimization parameters is $\Xi = [\tau_{f1} ~~ \tau_{f2} ~~
+%\tau_{f3} ~~ v_{p_1} ~~ v_{p_2}~~ v_{p_3}]$. The final value of the cost function $J =
+%1.6968e-006$ corresponds to $|\max_i t_{fi} - \min_i t_{fi}| \le ~~ 0.0013 ~~ sec$. The
+%value of the optimization parameter vector $\Xi_{final} = [4010.0 ~~ 4999.7 ~~ 7487.6
+%~~ 15.1380 ~~ 21.2238 ~~ 29.8054]$ resulted in spatially deconflicted paths where the
+%minimum distance between any two paths did not fall below $350 ~ m$ (the minimum
+%required distance was $100 ~ m$). The optimal speed profiles $[15.1380~m/s ~~
+%21.2238~m/s ~~ 29.8054~m/s]$ are well within predefined limits of $v_{{\rm min}},
+%v_{{\rm max}}$ were $15 m/sec$ and $30 m/sec$, respectively.
+%%The selected speed limits were
+%%well inside the physical capabilities of the UAVs used in the flight
+%%tests.
+%%This was done to ensure that each path can be tracked in
+%%the presence of winds.
+%The maximum acceleration corresponding to
+%each path did not exceed $0.89 m/sec^2$, well below the limit of
+%$0.5 g$.  Finally, the resulting total path lengths for each path were
+%$[ \l_{f1} ~~ \l_{f2} ~~ \l_{f3} ] = [4535.4 ~~ 6358.7  ~~ 8929.7]$.
 
 
 
@@ -520,9 +484,32 @@ $[ \l_{f1} ~~ \l_{f2} ~~ \l_{f3} ] = [4535.4 ~~ 6358.7  ~~ 8929.7]$.
 
 
 \begin{thebibliography}{9}% maximum number of references (for label width)
- \bibitem{rebek:82bk}
- Rebek, A., {\it Fickle Rocks}, Fink Publishing, Chesapeake, 1982.
+\bibitem{JGCD00_Yakimenko}
+    Yakimenko, O. A.,
+    \newblock Direct method for rapid prototyping of near-optimal aircraft trajectories.
+    \newblock {\em AIAA Journal of Guidance, Control, \& Dynamics}, 23(5):865--875,2000.
+
+\bibitem{JGCD10_PFL1aug},
+    Kaminer I.I., Pascoal A.M., Xargay E.M., Hovakimyan N., Cao C.C., Dobrokhodov V.N.,
+    \newblock Path Following for Unmanned Aerial Vehicles using {$\mathcal{L}_1$}~Adaptive Augmentation of Commercial Autopilots",
+    \newblock {\emph{AIAA Journal of Guidance, Control \& Dynamics}}, 33(2):550-564,2010
+
+\bibitem{Dobr1999_JCSI}
+    Dobrokhodov,V. N., and Yakimenko, O. A.,
+    \newblock Synthesis of Trajectorial Control Algorithms at the Stage of Rendezvous of an Airplane with a ManeuveringObject,
+    \newblock {\emph{Journal of Computer and Systems Sciences International}}, 38(2):262–277, 1999.
+
+\bibitem{HookeJeevs1961_JACM}
+    Hooke, R., and Jeeves, T. A.,
+    \newblock ‘Direct Search’ Solution of Numerical and Statistical Problems,
+    \newblock {\emph{Journal of the Association for Computing Machinery}}, 8(2):212-229,1961
+
+\bibitem{NelderMead1965_TCJ}
+    Nelder, J. A., and Mead, R.,
+    \newblock A Simplex Method for Function Minimization,
+    \newblock {The Computer Journal}, 8(7):308-313, 1965.
 \end{thebibliography}
+
 
 \end{document}
 
