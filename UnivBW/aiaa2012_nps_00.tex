@@ -88,8 +88,8 @@ not exceed the flight dynamics constraints, and that the operational constraints
 as radar detection, airspace deconfliction and collision avoidance conditions are
 met. Thus, this section outlines a path generation approach that is suitable for near
 real-time computation of feasible trajectories for a single UAV that accounts for the
-flight dynamics and operational constraints and can be followed by resorting to the
-path following algorithm\cite{JGCD10_PFL1aug} briefly described later in the paper.
+flight dynamics and operational constraints, and can be followed by resorting to the
+path following algorithm\cite{JGCD10_PFL1aug}.
 \end{abstract}
 
 \section*{Nomenclature}
@@ -118,11 +118,11 @@ UAV in a priory given operational environment, needs to be designed. The task sh
 specify the trajectory (both the path and the velocity profile) such that the mission
 objectives are achieved, the UAV and its payload do not exceed the flight dynamics
 constraints, and that the operational constraints such as radar detection, airspace
-deconfliction and collision avoidance conditions are met. Thus, this section outlines a
+deconfliction and collision avoidance conditions are met. Thus, this section primarily outlines a
 path generation approach that is suitable for near real-time computation of feasible
 trajectories for a single UAV that accounts for the flight dynamics and operational
-constraints and can be followed by resorting to the path following
-algorithm\cite{JGCD10_PFL1aug} briefly described later in the paper.
+constraints, and can be followed by resorting to the path following
+algorithm\cite{JGCD10_PFL1aug}.
 
 Consider a single UAV that is tasked to fly a typical mission while avoiding detection
 by an a priory known set of radars; the UAV performs its mission starting from its
@@ -287,13 +287,6 @@ coefficients $a_{ik}$ \end{tabular}
                             x_{i}(0) \\ x'_{i}(0) \\ x''_{i}(0) \\
                             x'''_{i}(0) \\ x_{i}(\tau_f) \\ x'_{i}(\tau_f) \\
                             x''_{i}(\tau_f) \end{array} \right]$
-
-
-
-
-
-
-
 %
 %  \caption{Examples of computation of the coefficients of polynomial trajectories.}\label{polynomialtable}
 %  \centering
@@ -315,9 +308,7 @@ coefficients $a_{ik}$ \end{tabular}
 %  \end{center}
 %\end{figure}
 
-% IK changes
-
-In this paper we are interested in small UAVs that operate essentially at constant speeds.
+In the scope of this work we are interested in small UAVs that operate essentially at constant speeds.
 Clearly, in this case speed constraints can be easily satisfied for any constant $ v_p \in [v_{{\rm min}},
 v_{{\rm max}} ]$. This in turn defines
 
