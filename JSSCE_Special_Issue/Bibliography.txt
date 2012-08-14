@@ -1,0 +1,19 @@
+[1] Jacklin, S. A., M. R. Lowry, J. M. Schumann, P.P. Gupta, J.T. Bosworth, E. Zavala, J.W. Kelly, K. J. Hayhurst, and C.M. Belcastro, “Verification, Validation, and Certification Challenges for Adaptive Flight-Critical Control System Software,” AIAA Guidance, Navigation and Control Conference, Providence, RI, August 2004, AIAA-2004-5258.
+[2] Wise, K. A., E. Lavretsky, and N. Hovakimyan,“Adaptive Control in Flight: Theory, Application, and Open Problems,” American Control Conference, Minneapolis, MN, June 2006, pp. 5966–5971.
+[3] Jacklin, S. A., “Closing Certification Gaps in Adaptive Flight Control Software,” AIAA Guidance, Navigation and Control Conference, Honolulu, HI, August 2008, AIAA-2008-6988.
+[4] Hovakimyan, N. and C. Cao, L1 Adaptive Control Theory, Society for Industrial and Applied Mathematics, Philadelphia, PA, 2010.
+[5] Jordan, T. L., W. M. Langford, and J. S. Hill, “Airborne Subscale Transport Aircraft Research Testbed-Aircraft Model Development,” AIAA Guidance, Navigation and Control Conference, San Francisco, CA, August 2005, AIAA-2005-6432.
+[6] Jordan, T. L., J. V. Foster, R. M. Bailey, and C. M. Belcastro, “AirSTAR: A UAV Platform for Flight Dynamics and Control System Testing,” AIAA Aerodynamic Measurement Technology and Ground Testing Conference, San Francisco, CA, June 2006, AIAA-2006-3307.
+[7] Xargay, E., N. Hovakimyan, and C. Cao, “L1 Adaptive Controller for Multi-Input Multi-Output Systems in the Presence of Nonlinear Unmatched Uncertainties,” American Control Conference, Baltimore, MD, June–July 2010.
+[8] Gregory, I. M., C. Cao, E.  Xargay, N. Hovakimyan, and X. Zou, “L1 Adaptive Control Design for NASA AirSTAR Flight Test Vehicle,” AIAA Guidance, Navigation and Control Conference, Chicago, IL, August 2009, AIAA-2009-5738.
+[9] Gregory, I. M., E. Xargay, C.  Cao, and N. Hovakimyan, “Flight Test of an L1 Adaptive Controller on the NASA AirSTAR Flight Test Vehicle,” AIAA Guidance, Navigation and Control Conference, Toronto, Canada, August 2010.
+[10] Kim, K. K. K. and N. Hovakimyan,“Development of Verification and Validation Approaches for L1 Adaptive Control: Multi-Criteria Optimization for Filter Design,” AIAA Guidance, Navigation and Control Conference, Toronto, Canada, August 2010.
+
+[11] Statnikov, R.B., and J.B. Matusov, Multicriteria Analysis in Engineering, Dordrecht/Boston/London: Kluwer Academic Publishers, 2002. 
+[12] Statnikov R.B. et al. Software Package MOVI 1.4 for Windows: User’s Manual, Certificate of Registration. Register of Copyrights, United State of America, Registration Number / Date: TXu 1-698-418 / 2010-05-22
+ [13] Sobol’,  I.M., and R.B. Statnikov, Selecting Optimal Parameters in Multicriteria Problems, Moscow: Drofa, 2nd edition (in Russian), 2006.
+ [14] Xargay, E., N. Hovakimyan, V. Dobrokhodov, R. Statnikov, I. Kaminer, C. Cao, and I.M. Gregory, “L1  Adaptive Flight Control System: Systematic Design and V&V of Control Metrics,” AIAA Guidance, Navigation, and Control conference, Toronto, Ontario Canada, 2-5 August 2010.  
+[15] Stepanyan, V., K. Krishnakumar, N. Nguyen, and L. V. Eykeren, “Stability and performance Metrics for Adaptive Flight Control,” AIAA Guidance, Navigation and Control Conference, Chicago, IL, August 2009, AIAA-2009-5965.
+[16] Bailey, R. E. and T. J. Bidlack, “Unified Pilot-Induced Oscillation Theory. Volume IV: Time-Domain Neal-Smith Criterion,” Tech. Rep. WL-TR-96-3031, Air Force Wright Laboratory, December 1995.
+[17] Choe, R., E. Xargay, N. Hovakimyan, C. Cao, and I. M. Gregory, “L1 Adaptive Control under Anomaly: Flying Qualities and Adverse Pilot Interaction,” AIAA Guidance, Navigation and Control Conference, Toronto, Canada, August 2010.
+
