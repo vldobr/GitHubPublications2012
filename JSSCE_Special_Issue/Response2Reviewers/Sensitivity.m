@@ -17,7 +17,6 @@ plot(dv1fq1_P(1,:),dv1fq1_P(2,:),'MarkerFaceColor','g','MarkerSize',8,...
     'LineWidth',1.25,...
     'Color','k');% Pareto data
 grad=max(diff(dv1fq1_P(2,:))./diff(dv1fq1_P(1,:)))
-
 dv1fq1_F=[5.99;
     0.0974];
 plot(dv1fq1_F(1,:),dv1fq1_F(2,:),'MarkerFaceColor',[1 1 0],'MarkerSize',8,'Marker','o',...
@@ -33,7 +32,7 @@ axis([5.5 7 0.06 0.13])
 % Create textarrow
 annotation('textarrow',[0.2946 0.3714],[0.312 0.5391],...
     'TextEdgeColor','none','FontSize',10,...
-    'String',{strcat('Grad \approx',num2str(grad))});
+    'String',{strcat('\nabla \approx',num2str(grad))});
 
 %% Criterion FQ1 (C14 FQrms) vs. design variable DV1
 figure(2)
@@ -65,9 +64,9 @@ legend('Feasible solutions','Pareto solutions','#202')
 
 xlabel('Design Variable 3 (Pcsbw)')
 ylabel('Criterion 3 Errnorm L2-> MIN')
-axis([10 40 0.06 0.13])
+axis([10 40 0.08 0.13])
 
 % Create textarrow
 annotation('textarrow',[0.3429 0.3054],[0.5381 0.7024],...
     'TextEdgeColor','none','FontSize',10,...
-    'String',{strcat('Grad \approx',num2str(grad))});
+    'String',{strcat('\nabla \approx',num2str(grad))});
