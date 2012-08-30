@@ -12,16 +12,19 @@ hold on
 
 dv1fq1_P=[5.96 6.06 6.16 6.26;
     0.099 0.094 0.090 0.0855];
+
 plot(dv1fq1_P(1,:),dv1fq1_P(2,:),'MarkerFaceColor','g','MarkerSize',8,...
     'Marker','o',...
     'LineWidth',1.25,...
     'Color','k');% Pareto data
+
 grad=max(diff(dv1fq1_P(2,:))./diff(dv1fq1_P(1,:)))
-dv1fq1_F=[5.99;
-    0.0974];
+dv1fq1_F=[5.99; 0.0974];
+
 plot(dv1fq1_F(1,:),dv1fq1_F(2,:),'MarkerFaceColor',[1 1 0],'MarkerSize',8,'Marker','o',...
     'LineWidth',1.25,...
     'Color',[0 1 0]);% Optimal point
+
 legend('Feasible solutions','Pareto solutions','#202')
 
 xlabel('Design Variable 1 (PwnAm)')
